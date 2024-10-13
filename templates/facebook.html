@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Meta Login Example</title>
+  </head>
+  <body>
+
+    <h2>Add Meta (Facebook) Login to your webpage</h2>
+
+    <!-- 用來顯示用戶登入資料的元素 -->
+    <p id="profile"></p>
+
+    <script>
+      // 初始化 Meta（Facebook）SDK
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '3783385005234420',  // 替換為你的 Meta App ID
+          xfbml      : true,                 // 允許解析 XFBML
+          version    : 'v16.0'               // 替換為你應用的 Graph API 版本
+        });
+
+        // 檢查當前的登入狀態
+        FB.getLoginStatus(function(response) {
+          statusChangeCallback(response);
+        });
+      };
+
+      // 動態加載 Facebook SDK
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); 
+        js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js"; // 加載 SDK
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+
+      // 這裡處理登入狀態變更的回調
+      function statusChangeCallback(response) {
+        if (response.status === 'connected') {
+          // 如果用戶已登入，調用 Graph API 獲取用戶信息
+          FB.api('/me', {fields: 'name, email'}, function(response) {
+            document.getElementById('profile').innerHTML = 
+              `你好，${response.name}，你的電子郵件是 ${response.email}`;
+          });
+        } else {
+          // 如果用戶未登入，顯示登入按鈕或其他消息
+          FB.login(function(response) {
+            if (response.authResponse) {
+              FB.api('/me', {fields: 'name, email'}, function(response) {
+                document.getElementById('profile').innerHTML = 
+                  `你好，${response.name}，你的電子郵件是 ${response.email}`;
+              });
+            } else {
+              console.log('使用者取消了登入或未完全授權。');
+            }
+          }, {scope: 'email'}); // 請求使用者授權電子郵件
+        }
+      }
+    </script>
+
+  </body>
+</html>
